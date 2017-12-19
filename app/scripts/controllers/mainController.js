@@ -195,11 +195,26 @@ angular.module('ethExplorer')
         }
 
         function updateTXList() {
-            var currentTXnumber = web3.eth.blockNumber;
-            $scope.txNumber = currentTXnumber;
+            var currentBlocknumber = web3.eth.blockNumber;
+            var transactionsCount = 0
+            $scope.txNumber = currentBlocknumber;
             $scope.recenttransactions = [];
-            for (var i=0; i < 10 && currentTXnumber - i >= 0; i++) {
-              $scope.recenttransactions.push(web3.eth.getTransactionFromBlock(currentTXnumber - i));
+            for (var i=0; i < 10 && currentBlocknumber - i >= 0; i++) {
+
+              var block =  web3.eth.getBlock(currentBlocknumber - i)
+              var blockTransactions = block.transactions
+              if (blockTransactions.length) {
+                for (var j=0; j < blockTransactions.length ; j++) {
+                 var transactionHash = blockTransactions[j]
+                 $scope.recenttransactions.push(web3.eth.getTransaction(transactionHash))
+                 transactionsCount++
+
+                 if (transactionsCount == 10) {
+                    return;
+                 };
+               }
+              };
+              //$scope.recenttransactions.push(web3.eth.getTransactionFromBlock(currentBlocknumber - i));
             }
         }
 
